@@ -309,6 +309,20 @@
     text-align: center;
   }
 
+  .webcam-wrap iframe {
+    width: 100%;
+    height: 320px;
+    border: 0;
+    border-radius: 12px;
+  }
+
+  .webcam-note {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #777;
+    text-align: center;
+  }
+
   .loading {
     text-align: center;
     color: #888;
@@ -348,6 +362,11 @@
     <div id="weather-content" class="loading">Lade Wetterdaten…</div>
   </div>
 
+  <div class="card" id="webcam-card">
+    <h2>Live-Webcam aus der Region</h2>
+    <div id="webcam-content" class="loading">Lade Webcam…</div>
+  </div>
+
   <footer>
     Wetterdaten von Open-Meteo (Modelle: ICON/DWD, GFS/NOAA, ECMWF, GEM) · Kartendaten von OpenStreetMap
   </footer>
@@ -365,7 +384,9 @@ const matches = [
     city: "Houston, Texas, USA",
     timezone: "America/Chicago",
     lat: 29.6847,
-    lon: -95.4107
+    lon: -95.4107,
+    webcamId: "1520784633",
+    webcamLabel: "Houston, Texas"
   },
   {
     opponent: "Elfenbeinküste",
@@ -376,7 +397,9 @@ const matches = [
     city: "Toronto, Ontario, Kanada",
     timezone: "America/Toronto",
     lat: 43.6332,
-    lon: -79.4185
+    lon: -79.4185,
+    webcamId: "1573498008",
+    webcamLabel: "Toronto › Bloor Street West & Parkside Drive"
   },
   {
     opponent: "Ecuador",
@@ -387,7 +410,9 @@ const matches = [
     city: "East Rutherford, New Jersey, USA",
     timezone: "America/New_York",
     lat: 40.8135,
-    lon: -74.0744
+    lon: -74.0744,
+    webcamId: null,
+    webcamLabel: null
   }
 ];
 
@@ -587,6 +612,23 @@ async function renderWeather() {
   }
 }
 
+function renderWebcam() {
+  const el = document.getElementById('webcam-content');
+  if (!nextMatch.webcamId) {
+    el.innerHTML = `<div class="loading">Für ${nextMatch.city.split(',')[0]} ist derzeit keine einbettbare Live-Webcam verfügbar.</div>`;
+    return;
+  }
+
+  const src = `https://webcams.windy.com/webcams/public/embed/player?webcamId=${nextMatch.webcamId}&playerType=live&autoplay=true`;
+
+  el.innerHTML = `
+    <div class="webcam-wrap">
+      <iframe src="${src}" allow="autoplay" loading="lazy"></iframe>
+    </div>
+    <div class="webcam-note">📹 ${nextMatch.webcamLabel} — Live-Eindruck der aktuellen Wetterlage in der Region (nicht direkt aus dem Stadion). Quelle: Windy.com</div>
+  `;
+}
+
 function updateVenueClock() {
   const el = document.getElementById('venue-clock');
   if (!el) return;
@@ -601,6 +643,7 @@ function updateVenueClock() {
 renderMatch();
 renderVenue();
 renderWeather();
+renderWebcam();
 setInterval(updateVenueClock, 1000);
 </script>
 </body>
