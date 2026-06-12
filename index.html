@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFB WM 2026 – Nächstes Spiel & Wetter</title>
+<style>
+  :root {
+    --wc-green: #00843D;
+    --wc-purple: #7B2D8E;
+    --wc-pink: #E5007D;
+    --wc-orange: #FF6A13;
+    --wc-blue: #0072CE;
+    --wc-yellow: #FFD100;
+    --card-bg: rgba(255,255,255,0.94);
+    --text-dark: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-dark);
+    background: linear-gradient(135deg, var(--wc-green) 0%, var(--wc-blue) 35%, var(--wc-purple) 70%, var(--wc-pink) 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 24px;
+    padding: 20px 10px;
+  }
+
+  header .badge {
+    display: inline-block;
+    background: var(--wc-yellow);
+    color: var(--text-dark);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  header p {
+    margin: 6px 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    backdrop-filter: blur(6px);
+  }
+
+  .card h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--wc-purple);
+    border-bottom: 3px solid var(--wc-yellow);
+    display: inline-block;
+    padding-bottom: 4px;
+  }
+
+  /* Match card */
+  .matchup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin: 16px 0 8px;
+    flex-wrap: wrap;
+  }
+
+  .team {
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .team .flag {
+    font-size: 4rem;
+    line-height: 1;
+  }
+
+  .team .name {
+    font-weight: 700;
+    margin-top: 6px;
+    font-size: 1.1rem;
+  }
+
+  .vs {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--wc-orange);
+  }
+
+  .match-meta {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .match-meta .group-label {
+    display: inline-block;
+    background: var(--wc-green);
+    color: #fff;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .times {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .times .time-block {
+    text-align: center;
+  }
+
+  .times .time-block .label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #777;
+    font-weight: 600;
+  }
+
+  .times .time-block .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  /* Countdown */
+  .countdown {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .countdown .box {
+    background: linear-gradient(160deg, var(--wc-purple), var(--wc-pink));
+    color: #fff;
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 76px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .countdown .box .num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown .box .unit {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+  }
+
+  /* Venue */
+  .venue-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .venue-info .details {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .venue-info .details p {
+    margin: 4px 0;
+    font-size: 1rem;
+  }
+
+  .venue-info .details .stadium {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--wc-blue);
+  }
+
+  .map-wrap {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .map-wrap iframe {
+    width: 100%;
+    height: 240px;
+    border: 0;
+    border-radius: 12px;
+  }
+
+  /* Weather */
+  .weather-current {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .weather-current .temp {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--wc-orange);
+  }
+
+  .weather-current .icon {
+    font-size: 3rem;
+  }
+
+  .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .weather-grid .item {
+    background: #f4f4f8;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .weather-grid .item .label {
+    font-size: 0.75rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .weather-grid .item .val {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  table.models {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin-top: 8px;
+  }
+
+  table.models th, table.models td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  table.models th {
+    background: var(--wc-green);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+
+  table.models td:first-child, table.models th:first-child {
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .kickoff-note {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: #777;
+    text-align: center;
+  }
+
+  .loading {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+  }
+
+  footer {
+    text-align: center;
+    color: #fff;
+    opacity: 0.75;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    padding-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">FIFA World Cup 2026</div>
+    <h1>🇩🇪 Nächstes Spiel der Nationalmannschaft</h1>
+    <p>Kanada · Mexiko · USA — 11. Juni bis 19. Juli 2026</p>
+  </header>
+
+  <div class="card" id="match-card">
+    <h2>Begegnung</h2>
+    <div id="match-content" class="loading">Lade Spieldaten…</div>
+  </div>
+
+  <div class="card" id="venue-card">
+    <h2>Spielort</h2>
+    <div id="venue-content" class="loading">Lade Stadioninformationen…</div>
+  </div>
+
+  <div class="card" id="weather-card">
+    <h2>Wetter am Spielort</h2>
+    <div id="weather-content" class="loading">Lade Wetterdaten…</div>
+  </div>
+
+  <footer>
+    Wetterdaten von Open-Meteo (Modelle: ICON/DWD, GFS/NOAA, ECMWF, GEM) · Kartendaten von OpenStreetMap
+  </footer>
+</div>
+
+<script>
+// --- Spielplan Deutschland: WM 2026 Gruppenphase ---
+const matches = [
+  {
+    opponent: "Curaçao",
+    flag: "🇨🇼",
+    group: "Gruppe E – Spieltag 1",
+    dateUtc: "2026-06-14T17:00:00Z",
+    stadium: "Houston Stadium (NRG Stadium)",
+    city: "Houston, Texas, USA",
+    timezone: "America/Chicago",
+    lat: 29.6847,
+    lon: -95.4107
+  },
+  {
+    opponent: "Elfenbeinküste",
+    flag: "🇨🇮",
+    group: "Gruppe E – Spieltag 2",
+    dateUtc: "2026-06-20T20:00:00Z",
+    stadium: "Toronto Stadium (BMO Field)",
+    city: "Toronto, Ontario, Kanada",
+    timezone: "America/Toronto",
+    lat: 43.6332,
+    lon: -79.4185
+  },
+  {
+    opponent: "Ecuador",
+    flag: "🇪🇨",
+    group: "Gruppe E – Spieltag 3",
+    dateUtc: "2026-06-25T20:00:00Z",
+    stadium: "New York New Jersey Stadium (MetLife Stadium)",
+    city: "East Rutherford, New Jersey, USA",
+    timezone: "America/New_York",
+    lat: 40.8135,
+    lon: -74.0744
+  }
+];
+
+const now = new Date();
+let nextMatch = matches.find(m => new Date(m.dateUtc) > now) || matches[matches.length - 1];
+
+function renderMatch() {
+  const d = new Date(nextMatch.dateUtc);
+
+  const localTime = d.toLocaleString('de-DE', {
+    timeZone: nextMatch.timezone,
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const berlinTime = d.toLocaleString('de-DE', {
+    timeZone: 'Europe/Berlin',
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  document.getElementById('match-content').innerHTML = `
+    <div class="match-meta"><span class="group-label">${nextMatch.group}</span></div>
+    <div class="matchup">
+      <div class="team">
+        <div class="flag">🇩🇪</div>
+        <div class="name">Deutschland</div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="team">
+        <div class="flag">${nextMatch.flag}</div>
+        <div class="name">${nextMatch.opponent}</div>
+      </div>
+    </div>
+    <div class="times">
+      <div class="time-block">
+        <div class="label">Ortszeit (${nextMatch.city.split(',')[0]})</div>
+        <div class="value">${localTime} Uhr</div>
+      </div>
+      <div class="time-block">
+        <div class="label">Deutsche Zeit</div>
+        <div class="value">${berlinTime} Uhr</div>
+      </div>
+    </div>
+    <div id="countdown" class="countdown"></div>
+  `;
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+  const target = new Date(nextMatch.dateUtc);
+  const diff = target - new Date();
+  const el = document.getElementById('countdown');
+  if (!el) return;
+
+  if (diff <= 0) {
+    el.innerHTML = `<div class="box"><div class="num">⚽</div><div class="unit">Anpfiff!</div></div>`;
+    return;
+  }
+
+  const sec = Math.floor(diff / 1000);
+  const days = Math.floor(sec / 86400);
+  const hours = Math.floor((sec % 86400) / 3600);
+  const mins = Math.floor((sec % 3600) / 60);
+  const secs = sec % 60;
+
+  el.innerHTML = `
+    <div class="box"><div class="num">${days}</div><div class="unit">Tage</div></div>
+    <div class="box"><div class="num">${String(hours).padStart(2,'0')}</div><div class="unit">Std</div></div>
+    <div class="box"><div class="num">${String(mins).padStart(2,'0')}</div><div class="unit">Min</div></div>
+    <div class="box"><div class="num">${String(secs).padStart(2,'0')}</div><div class="unit">Sek</div></div>
+  `;
+}
+
+function renderVenue() {
+  const bbox = [nextMatch.lon - 0.04, nextMatch.lat - 0.025, nextMatch.lon + 0.04, nextMatch.lat + 0.025].join(',');
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${nextMatch.lat},${nextMatch.lon}`;
+
+  document.getElementById('venue-content').innerHTML = `
+    <div class="venue-info">
+      <div class="details">
+        <p class="stadium">${nextMatch.stadium}</p>
+        <p>📍 ${nextMatch.city}</p>
+        <p>🧭 Koordinaten: ${nextMatch.lat.toFixed(4)}, ${nextMatch.lon.toFixed(4)}</p>
+      </div>
+      <div class="map-wrap">
+        <iframe src="${mapUrl}" loading="lazy"></iframe>
+      </div>
+    </div>
+  `;
+}
+
+const weatherCodeIcons = {
+  0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+  45: "🌫️", 48: "🌫️",
+  51: "🌦️", 53: "🌦️", 55: "🌧️",
+  61: "🌧️", 63: "🌧️", 65: "🌧️",
+  71: "🌨️", 73: "🌨️", 75: "❄️",
+  80: "🌦️", 81: "🌧️", 82: "⛈️",
+  95: "⛈️", 96: "⛈️", 99: "⛈️"
+};
+
+function iconFor(code) {
+  return weatherCodeIcons[code] || "🌡️";
+}
+
+async function renderWeather() {
+  const lat = nextMatch.lat, lon = nextMatch.lon;
+  const models = "best_match,icon_seamless,gfs_seamless,ecmwf_ifs025,gem_seamless";
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weathercode,windspeed_10m` +
+    `&hourly=temperature_2m,precipitation_probability,weathercode,windspeed_10m,relative_humidity_2m` +
+    `&models=${models}` +
+    `&timezone=${encodeURIComponent(nextMatch.timezone)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    // current weather (best_match)
+    const cur = data.current;
+    const currentHtml = `
+      <div class="weather-current">
+        <div class="icon">${iconFor(cur.weathercode)}</div>
+        <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
+        <div>
+          <div>Gefühlt: ${Math.round(cur.apparent_temperature)}°C</div>
+          <div>Wind: ${Math.round(cur.windspeed_10m)} km/h</div>
+        </div>
+      </div>
+      <div class="weather-grid">
+        <div class="item"><div class="label">Luftfeuchte</div><div class="val">${cur.relative_humidity_2m}%</div></div>
+        <div class="item"><div class="label">Niederschlag</div><div class="val">${cur.precipitation} mm</div></div>
+      </div>
+    `;
+
+    // find hourly index closest to kickoff
+    const kickoff = new Date(nextMatch.dateUtc);
+    const hourlyTimes = data.hourly.time.map(t => new Date(t));
+    let idx = 0, bestDiff = Infinity;
+    hourlyTimes.forEach((t, i) => {
+      const diff = Math.abs(t - kickoff);
+      if (diff < bestDiff) { bestDiff = diff; idx = i; }
+    });
+
+    const kickoffLocal = hourlyTimes[idx].toLocaleString('de-DE', {
+      timeZone: nextMatch.timezone, weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+
+    const modelKeys = [
+      { key: "best_match", label: "Best Match" },
+      { key: "icon_seamless", label: "ICON (DWD)" },
+      { key: "gfs_seamless", label: "GFS (NOAA, lokal)" },
+      { key: "ecmwf_ifs025", label: "ECMWF" },
+      { key: "gem_seamless", label: "GEM (Kanada)" }
+    ];
+
+    let rows = "";
+    modelKeys.forEach(m => {
+      const tempArr = data.hourly[`temperature_2m_${m.key}`];
+      const precArr = data.hourly[`precipitation_probability_${m.key}`];
+      const codeArr = data.hourly[`weathercode_${m.key}`];
+      const windArr = data.hourly[`windspeed_10m_${m.key}`];
+
+      if (!tempArr) return;
+
+      const temp = tempArr[idx] !== undefined && tempArr[idx] !== null ? Math.round(tempArr[idx]) + "°C" : "–";
+      const prec = precArr && precArr[idx] !== undefined && precArr[idx] !== null ? precArr[idx] + "%" : "–";
+      const wind = windArr && windArr[idx] !== undefined && windArr[idx] !== null ? Math.round(windArr[idx]) + " km/h" : "–";
+      const code = codeArr ? codeArr[idx] : null;
+      const icon = code !== null && code !== undefined ? iconFor(code) : "";
+
+      rows += `<tr><td>${m.label}</td><td>${icon} ${temp}</td><td>${prec}</td><td>${wind}</td></tr>`;
+    });
+
+    const tableHtml = `
+      <table class="models">
+        <thead>
+          <tr><th>Modell</th><th>Temperatur</th><th>Regenwahrsch.</th><th>Wind</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="kickoff-note">Vorhersage für Anpfiff am ${kickoffLocal} Uhr (Ortszeit ${nextMatch.city.split(',')[0]})</div>
+    `;
+
+    document.getElementById('weather-content').innerHTML = `
+      <h3 style="margin-top:0;color:#555;font-size:0.95rem;text-transform:uppercase;letter-spacing:1px;">Aktuell in ${nextMatch.city.split(',')[0]}</h3>
+      ${currentHtml}
+      <h3 style="color:#555;font-size:0.95rem;text-transform:uppercase;letter-spacing:1px;">Vorhersage zum Anpfiff – Modellvergleich</h3>
+      ${tableHtml}
+    `;
+  } catch (err) {
+    document.getElementById('weather-content').innerHTML = `<div class="loading">Wetterdaten konnten nicht geladen werden: ${err.message}</div>`;
+  }
+}
+
+renderMatch();
+renderVenue();
+renderWeather();
+</script>
+</body>
+</html>
